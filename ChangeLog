@@ -1,3 +1,94 @@
+=== xdg-utils NOT YET RELEASED ===
+
+2025-08-23 Slatian
+  * xdg-open: Reimplement the .desktop file handling of the generic opener in awk (!147)
+
+2025-08-20 deng bo
+  * xdg-settings: fix deepin browser detection for newer versions (!152)
+
+2025-06-26 Slatian
+  * all: Document build dependencies (!149, !150)
+
+2025-06-12 Slatian
+  * all: Set up GitlabCI for shellchecking (!148)
+
+2025-06-16 Slatian
+  * all: Fix shellcheck getting confused by incomplete code (!144, #280)
+  * all:  Add xdg-settings to README, document how to shellcheck,
+    clarify issue template (!145, #9)
+  * xdg-open: Remove redundant shift that would have resulted in missed cli arguments. (!146)
+
+2025-06-08 Reuben Thomas
+  * xdg-open: support multiple arguments (!139, #96)
+
+2025-05-10 Slatian
+  * xdg-mail: No longer handle `attach` in mailto URLs (!89, #177, CVE-2020-27748)
+  * all: shellcheck (!132)
+  * xdg-open: Unknown KDE versions now use the generic opener instead of failing
+    (!134, #273)
+  * all: Add `XDG_UTILS_OVERRIDE_DE` and tool specific overrides (!112, #240)
+  * xdg-screensaver: Allow using `org.freedesktop.ScreenSaver` independent of desktop
+    (!133, #261)
+  * all: Document function signatures for common, open, mime and settings (!136)
+  * xdg-screensaver: Document `xprop` as a hard requirement (!142, #93)
+  * xdg-settings: Fix setting a URL scheme handler reassociating text/html for lxqt (!143)
+
+2025-05-10 Reuben Thomas
+  * all: Remove no longer needed xprop fingerprinting that impacted performance
+    (!140, #275)
+  * xdg-screensaver: Fix suspending using window without a `WM_NAME` property (!138)
+  * xdg-screensaver: Fix call to `org.freedesktop.ScreenSaver.Inhibit` (!137)
+
+2025-05-10 eylles and Teemu Ikonen
+  * xdg-screensaver: Add support for xss-lock (!118, #139)
+
+2025-05-10 Michał Górny
+  * xdg-open: Use new xfce-open preferred to exo-open of available (!141)
+
+2025-02-07 Slatian
+  * xdg-open: Document how exactly xdg-open handles the BROWSER variable (!114)
+  * xdg-mime: Implement XDG_CONFIG_HOME resolution in shell to
+    get rid qtpaths dependency (!120, #258)
+  * xdg-settings: Make priorities match with xdg-open for generic path (!130, #266)
+  * all: Fix xdg_which to not get confused by files in the pwd (!121, #259)
+
+2025-02-07 Paul Wise
+  * xdg-email: Avoid passing empty kreadconfig return to desktop_file_to_binary (!128)
+
+2025-02-04 ComixHe
+  * all: Detect `XDG_CURRENT_DESKTOP` set to `DDE` as Deepin (!111)
+
+2025-02-04 Slatian
+  * all: Document dependencies (!124)
+  * xdg-realpath: Cleanup (!122, #260)
+  * all: Add manpage `xdg-utils` for common functionality (!113)
+  * all: Add an issue template (!109)
+
+2025-02-04 Ben Blank
+  * xdg-icon-resource: Add support for SVG icons (!116, #82)
+
+2025-02-04 Ronan Pigott
+  * xdg-open: properly parse XDG_CURRENT_DESKTOP (!125, #102)
+
+2025-02-04 Sertonix
+  * xdg-screensaver: Fix for busybox sed (!126)
+
+2025-02-04 Daniel Danner
+  * xdg-mime: Fix inconsistent docs: s/query file/query filetype/ (!127)
+
+2025-02-04 Tom Dryer
+  * xdg-screensaver: Fix `reset` with GNOME 3 (!123, #89)
+
+2024-06-08 Slatian
+  * xdg-mime: Add error message when trying to set a non-executable .desktop file
+    as default mime-type handler. (!117, #254)
+
+2024-05-21 Slatian
+  * xdg-open: General improvements desktop-file to command resolution (!115, #252)
+
+2024-02-08 Slatian
+  * all: Add xdg-utils specific shellcheck tooling (!107)
+
 === xdg-utils 1.2.1 ===
 2024-02-06 Slatian
   * Proper quoting of `_MANUALPAGE` and `_USAGE` sections. (#243)

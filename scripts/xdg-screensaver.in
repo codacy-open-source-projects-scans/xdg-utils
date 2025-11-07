@@ -95,6 +95,10 @@ perform_action()
       fi
       ;;
 
+    freedesktop_screensaver)
+      screensaver_freedesktop "$1"
+      ;;
+
     gnome3)
       screensaver_freedesktop "$1"
       ;;
@@ -117,6 +121,14 @@ perform_action()
 
     xautolock_screensaver)
       xautolock_screensaver "$1"
+      ;;
+
+    xss-lock_screensaver)
+      if [ "$1" = "lock" ]; then
+        screensaver_xserver "activate"
+      else
+        screensaver_xserver "$1"
+      fi
       ;;
 
     xfce)
@@ -363,7 +375,7 @@ screensaver_kde3()
 
 xset_screensaver_timeout()
 {
-  xset q | sed '/^Screen Saver:/,/^[^ ]/ { s/.*timeout: *\([0-9]*\).*/\1/; t }; d'
+  xset q | sed '/^Screen Saver:/,/^[^ ]/ { s/.*timeout: *\([0-9]*\).*/\1/; t; }; d'
 }
 
 screensaver_xserver()
@@ -461,8 +473,9 @@ my $x = X11::Protocol->new();
 my $named_window_id = hex($window_id);
 my $window_name;
 while (1) {
-  ($window_name) = $x->GetProperty($named_window_id, $x->atom("WM_NAME"),
-				   $x->atom("STRING"), 0, 1000, 0);
+  eval { ($window_name) = $x->GetProperty($named_window_id, $x->atom("WM_NAME"),
+				   $x->atom("STRING"), 0, 1000, 0); };
+  $window_name = "?" if $@;
   last if defined($window_name) && $window_name ne "";
   (undef, $named_window_id) = $x->QueryTree($named_window_id);
   if (!defined($named_window_id)) {
@@ -480,7 +493,15 @@ $window_name = decode("utf8", $window_name, Encode::FB_DEFAULT);
 my $bus = Net::DBus->session();
 my $sm_svc = $bus->get_service($dbus_service);
 my $sm = $sm_svc->get_object($dbus_path, $dbus_service);
-$sm->Inhibit($window_name, hex($window_id), $window_name, 8);
+if ($dbus_service eq "org.gnome.SessionManager") {
+  $sm->Inhibit($window_name, hex($window_id), $window_name, 8);
+} elsif ($dbus_service eq "org.freedesktop.ScreenSaver") {
+  # Assume org.freedesktop.ScreenSaver
+  $sm->Inhibit($window_name, $window_name);
+} else {
+  print STDERR "ERROR: internal error, unknown D-Bus service $dbus_service\n";
+  exit 1;
+}
 
 # Wait until removed from the status file.
 while (1) {
@@ -502,7 +523,11 @@ while (1) {
 screensaver_gnome_screensaver()
 {
 # DBUS interface for gnome-screensaver
-# http://people.gnome.org/~mccann/gnome-screensaver/docs/gnome-screensaver.html
+# https://gitlab.gnome.org/Archive/gnome-screensaver/-/blob/master/doc/dbus-interface.xml
+# as well as gnome-shell
+# https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/data/dbus-interfaces/org.gnome.ScreenSaver.xml
+# Documentation:
+# https://gnome.pages.gitlab.gnome.org/gnome-session/re04.html
     case "$1" in
         suspend)
         screensaver_dbus_process $window_id $screensaver_file "org.gnome.SessionManager" "/org/gnome/SessionManager"
@@ -541,8 +566,9 @@ screensaver_gnome_screensaver()
                   --dest=org.gnome.ScreenSaver \
                   --type=method_call \
                   /org/gnome/ScreenSaver \
-                  org.gnome.ScreenSaver.SimulateUserActivity \
-                 2> /dev/null
+                  org.gnome.ScreenSaver.SetActive \
+                  boolean:false \
+                  2> /dev/null
         result=$?
         ;;
 
@@ -877,6 +903,8 @@ esac
 detectDE
 # Consider "xscreensaver" a separate DE
 xscreensaver-command -version 2> /dev/null | grep XScreenSaver > /dev/null && DE="xscreensaver"
+# Consider "freedesktop-screensaver" a separate DE
+dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.freedesktop.ScreenSaver > /dev/null 2>&1 && DE="freedesktop_screensaver"
 # Consider "gnome-screensaver" a separate DE
 dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.ScreenSaver > /dev/null 2>&1 && DE="gnome_screensaver"
 # Consider "mate-screensaver" a separate DE
@@ -885,6 +913,8 @@ dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.fr
 dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.cinnamon.ScreenSaver > /dev/null 2>&1 && DE="cinnamon"
 # Consider "xautolock" a separate DE
 xautolock -enable > /dev/null 2>&1 && DE="xautolock_screensaver"
+# Consider "xss-lock" a separate DE
+command -v xss-lock > /dev/null 2>&1 && ps x -o cmd | grep '^xss-lock' | grep -qF -e "-s ${XDG_SESSION_ID}" -e "--session=${XDG_SESSION_ID}" && DE="xss-lock_screensaver"
 
 if [ "$action" = "resume" ] ; then
     do_resume

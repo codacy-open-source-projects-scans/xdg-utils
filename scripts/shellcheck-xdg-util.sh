@@ -59,7 +59,7 @@ make "$SCRIPT"
 
 # (pattern, nth_result=1)
 find_line() {
-	line="$(grep -Pn "^$1$" "$SCRIPT"  | cut -d: -f1 | head -n "${2:-1}" | tail -n 1)"
+	line="$(grep -En "^$1$" "$SCRIPT"  | cut -d: -f1 | head -n "${2:-1}" | tail -n 1)"
 	echo "$line"
 	printf 'Found \33[32m"%s"\33[00m at line %s\n' "$1" "$line" >&2
 }
@@ -92,11 +92,8 @@ echo "Running Shellcheck ..."
 #  This one should be updated once shellcheck gets a
 #  "function never gets called" check with its own id.
 
-shellcheck --color=always "./$SCRIPT.in" \
-	-i SC2317
 
 shellcheck --color=always "./$SCRIPT" \
-	-e SC2317 \
 	"$@" |
 	awk \
 	-v"source_name=$SCRIPT.in" \

@@ -30,13 +30,19 @@
 
   <refnamediv>
     <refname>xdg-open</refname>
-    <refpurpose>opens a file or URL in the user's preferred application</refpurpose>
+    <refpurpose>opens files and/or URLs in the user's preferred applications</refpurpose>
   </refnamediv>
 
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>xdg-open</command>
-      <group choice="req">
+      <group choice="opt">
+        <arg choice="plain"><option>--nowait</option></arg>
+      </group>
+      <group choice="opt">
+        <arg choice="plain"><option>--</option></arg>
+      </group>
+      <group choice="req" rep="repeat">
         <arg choice="plain"><option><replaceable>file</replaceable></option></arg>
         <arg choice="plain"><option><replaceable>URL</replaceable></option></arg>
       </group>
@@ -54,11 +60,7 @@
   <refsect1 id="description">
     <title>Description</title>
     <para>
-      xdg-open opens a file or URL in the user's preferred application.
-      If a URL is provided the URL will be opened in the user's preferred
-      web browser. If a file is provided the file will be opened in the
-      preferred application for files of that type. xdg-open supports
-      file, ftp, http and https URLs.
+      xdg-open opens the given files and/or URLs in the user's preferred applications.
     </para>
     <para>
       xdg-open is for use inside a desktop session only.
@@ -68,7 +70,7 @@
 	  As xdg-open can not handle arguments that begin with a <quote>-</quote> it is recommended to pass filepaths in one of the following ways:
     </para>
 	  <itemizedlist>
-		  <listitem><para>Pass absolute paths, i.e. by using <command>realpath</command> as a preprocessor.</para></listitem>
+		  <listitem><para>Pass absolute paths, i.e. by using <command>xdg-realpath</command> as a preprocessor.</para></listitem>
 		  <listitem><para>Prefix known relative filepaths with a <quote>./</quote>. For example using <code>sed -E 's|^[^/]|./\0|'</code>.</para></listitem>
 		  <listitem><para>Pass a file URL.</para></listitem>
 	  </itemizedlist>
@@ -76,6 +78,32 @@
   <refsect1 id="options">
     <title>Options</title>
     <variablelist>
+      <varlistentry>
+	<term><option>--</option></term>
+	<listitem>
+	  <simpara>
+	    Indicate that whatever follows is a filename or URL, not an option.
+	  </simpara>
+	  <simpara>
+		This option is new and incompatible with older releases!
+		Consider escaping or using realpath instead.
+	  </simpara>
+	  <simpara>
+		 Internally this will the prefix escaping strategy for filenames that begin with hyphens outlined above.
+	  </simpara>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><option>--nowait</option></term>
+	<listitem>
+	  <simpara>
+	    Do not wait for the opener to exit after launching the last URL.
+	  </simpara>
+	</listitem>
+      </varlistentry>
+
+
       <varlistentry>
 	<term><option>--help</option></term>
 	<listitem>
@@ -139,7 +167,7 @@
 	<term><option>4</option></term>
 	<listitem>
 	  <simpara>
-	    The action failed. 
+	    At least one file or URL could not  be opened.
 	  </simpara>
 	</listitem>
       </varlistentry>
@@ -148,6 +176,24 @@
 	  In case of success the process launched from the .desktop file will not be forked off and therefore may result in xdg-open running for a very long time. This behaviour intentionally differs from most desktop specific openers to allow terminal based applications to run using the same terminal xdg-open was called from.
     </para>
   </refsect1>
+  
+  <refsect1>
+    <title>Environment</title>
+    <para>xdg-open honors the following environment variables:</para>
+    <variablelist>
+      <varlistentry>
+	    <term><envar>BROWSER</envar></term>
+	    <listitem>
+		    <para>May contain a command that is used to open a filepath or URL when no other appropriate opener was found. The Path or URL will be appended as the last argument.</para>
+		    <para>No parsing beyond splitting arguments on space characters should be assumed. Quoting is not supported. Be careful with ':' and '%' characters.</para>
+		    <para>The following two features are supported in xdg-open only, but not by other applications that make use of the <envar>BROWSER</envar> variable. Using them is no longer recommended.</para>
+		    <para>This environment variable may contain a colon separated list of commands if one command fails the command after it will be tried.</para>
+		    <para>When using <code>%s</code> as a placeholder the first instance of it will be replaced with the filepath or URL to be opened instead of appending it as the last argument.</para>
+	    </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  
   <refsect1 id="reporting-issues">
     <title>Reporting Issues</title>
     <para>
@@ -173,6 +219,12 @@
       </citerefentry>,
       <citerefentry><refentrytitle>xdg-settings</refentrytitle>
         <manvolnum>1</manvolnum>
+      </citerefentry>,
+      <citerefentry><refentrytitle>xdg-realpath</refentrytitle>
+        <manvolnum>1</manvolnum>
+      </citerefentry>,
+      <citerefentry><refentrytitle>xdg-utils-common</refentrytitle>
+        <manvolnum>7</manvolnum>
       </citerefentry>,
       <ulink url="http://www.freedesktop.org/wiki/Specifications/mime-apps-spec/">MIME applications associations specification</ulink>
     </para>

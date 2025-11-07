@@ -20,6 +20,7 @@ SCRIPTS		= \
     xdg-icon-resource \
     xdg-open \
     xdg-email \
+    xdg-realpath \
     xdg-screensaver \
     xdg-settings
 #    xdg-su
@@ -27,7 +28,7 @@ SCRIPTS		= \
 #    xdg-file-dialog
 #    xdg-terminal
 
-MANPAGES=	$(SCRIPTS:%=man/%.1)
+MANPAGES=	$(SCRIPTS:%=man/%.1) man/xdg-utils-common.7
 WEBPAGES=	$(SCRIPTS:%=html/%.html)
 XMLFILES=	$(SCRIPTS:%=desc/%.xml)
 
@@ -91,6 +92,7 @@ xdg-desktop-icon: xdg-desktop-icon.in xdg-utils-common.in
 xdg-email: xdg-email.in xdg-utils-common.in
 xdg-mime: xdg-mime.in xdg-utils-common.in
 xdg-open: xdg-open.in xdg-utils-common.in
+xdg-realpath: xdg-realpath.in xdg-utils-common.in
 xdg-screensaver: xdg-screensaver.in xdg-utils-common.in
 xdg-settings: xdg-settings.in xdg-utils-common.in
 xdg-icon-resource: xdg-icon-resource.in xdg-utils-common.in
@@ -101,6 +103,9 @@ xdg-file-dialog: xdg-file-dialog.in xdg-utils-common.in
 xdg-terminal: xdg-terminal.in xdg-utils-common.in
 
 man/%.1: desc/%.xml
+	(cd man;$(XMLTO) man ../$<)
+
+man/%.7: desc/%.xml
 	(cd man;$(XMLTO) man ../$<)
 
 html/index.html: $(XMLFILES)
